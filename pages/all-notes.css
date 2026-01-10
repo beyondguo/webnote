@@ -1,0 +1,567 @@
+/* ========================================
+   All Notes Page 样式 - Notion Style Redesign
+   ======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: var(--text-primary);
+}
+
+.page-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    overflow: hidden;
+}
+
+/* 顶部导航 - Clean & White */
+.page-header {
+    background: var(--bg-primary);
+    /* White */
+    color: var(--text-primary);
+    padding: 0 var(--spacing-xl);
+    height: 56px;
+    /* Notion height */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    z-index: 10;
+    box-shadow: none;
+    /* No shadow */
+    min-width: 0;
+}
+
+.header-left {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.header-left h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Slightly reduced gap since icon is gone */
+    margin-right: 24px;
+    /* Add explicit right margin to separate from stats */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-left h1::before {
+    content: none;
+    /* Remove book icon */
+}
+
+.stats-summary {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: normal;
+    margin-left: 24px;
+    /* Increased from 12px for better separation */
+    white-space: nowrap;
+    border-left: 1px solid var(--border-color);
+    /* Optional: add a divider */
+    padding-left: 24px;
+    /* Add padding for the divider */
+}
+
+.header-right {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+/* 主内容区 */
+.main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* 左侧边栏 - Subtle Gray */
+.sidebar {
+    width: 260px;
+    /* Slightly narrower */
+    background: var(--bg-secondary);
+    /* #f7f7f5 */
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    flex-shrink: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 12px;
+}
+
+.sidebar-section {
+    padding: 12px 16px;
+}
+
+.sidebar-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    padding-left: 4px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 13px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--text-tertiary);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 页面列表 */
+.pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 0 8px;
+}
+
+.page-item {
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.1s;
+    color: var(--text-secondary);
+    border: none;
+}
+
+.page-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.page-item.active {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.page-item-title {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-item-title::before {
+    content: '📄';
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.page-item-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: transparent;
+    padding: 0;
+}
+
+/* 标签列表 - Candy/Pill Style */
+.tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px;
+    /* Align with other items */
+}
+
+.tag-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    /* Pill shape */
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.tag-chip:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 笔记内容区 */
+.notes-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 48px;
+    background: var(--bg-primary);
+    /* White */
+}
+
+.view-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.view-mode {
+    background: var(--bg-secondary);
+    padding: 2px;
+    border-radius: 6px;
+    display: flex;
+    gap: 2px;
+}
+
+.view-btn {
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.view-btn.active {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.sort-select {
+    padding: 4px 8px;
+    border: none;
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+}
+
+.sort-select:hover {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+/* 笔记容器 */
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 60px;
+}
+
+/* 页面分组 Header */
+.page-group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    background: transparent;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-group-title h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.page-group-url {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: 8px;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.page-group-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.view-toggle-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+}
+
+.view-toggle-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.view-toggle-btn.active {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* 卡片视图 */
+.page-group-notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.note-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.1s ease;
+    box-shadow: none;
+}
+
+.note-card:hover {
+    border-color: var(--text-tertiary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+}
+
+.note-time {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.note-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 8px 0;
+}
+
+.note-tags {
+    gap: 6px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.note-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    /* Pill */
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    text-transform: none;
+}
+
+.note-note {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    border-left: none;
+    border: 1px solid transparent;
+    margin-top: 12px;
+    font-style: italic;
+}
+
+/* Export Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    /* Lighter blur */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn var(--transition-normal);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.export-option {
+    margin-bottom: 16px;
+}
+
+.export-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-align: left;
+}
+
+.export-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--text-tertiary);
+    transform: none;
+}
+
+.export-btn strong {
+    display: block;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.export-btn p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+/* 加载状态 */
+.loading {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+/* Markdown HTML View Styles - Elegant Reader Redesign */
+.md-entry {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.md-entry:last-child {
+    border-bottom: none;
+}
+
+.md-meta {
+    margin: 0 0 4px 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-style: normal;
+}
+
+.md-content {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #1e293b;
+    white-space: pre-wrap;
+    /* Elegant Serif Stack */
+    font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.md-comment {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: #fdf6b2;
+    /* Warmer yellow */
+    border-left: 3px solid #d97706;
+    /* Amber border */
+    border-radius: 2px;
+    color: #92400e;
+    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-style: italic;
+}
+
+/* Cleaner container */
+.page-group-markdown {
+    background: transparent;
+    padding: 10px 0 10px 24px;
+    border: none;
+    border-left: 2px solid var(--border-color);
+}
+
+.md-divider {
+    display: none;
+}

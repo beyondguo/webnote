@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎使用 Web Notes！</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 24px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #718096;
+        }
+
+        .steps {
+            margin: 40px 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            background: #edf2f7;
+            transform: translateX(4px);
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .step-content h3 {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .step-content code {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .cta {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tip {
+            background: #fff5e1;
+            border-left: 4px solid #f59e0b;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .tip-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .tip-content {
+            color: #78350f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .hint {
+            margin-top: 16px;
+            color: #718096;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">📝</div>
+            <h1>欢迎使用 Web Notes！</h1>
+            <p class="subtitle">你的智能网页笔记助手</p>
+        </div>
+
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>设置保存文件夹</h3>
+                    <p>首次使用前，需要选择一个本地文件夹来保存你的笔记。点击下方的"设置保存文件夹"按钮开始。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>选中文本并保存</h3>
+                    <p>在任意网页上，用鼠标选中你想保存的文字，然后<strong>右键点击</strong>，选择"💾 保存为笔记"。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>添加标签和备注</h3>
+                    <p>在弹出的对话框中，输入标签（用空格分隔），可选添加备注，然后点击保存。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>查看和管理笔记</h3>
+                    <p>点击插件图标，可以查看当前页面的笔记，或者打开"所有笔记"页面查看、编辑、搜索所有笔记。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🏷️</div>
+                <div class="feature-title">标签管理</div>
+                <div class="feature-desc">用标签组织笔记，快速查找</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💾</div>
+                <div class="feature-title">本地存储</div>
+                <div class="feature-desc">数据保存在本地，完全掌控</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">强大搜索</div>
+                <div class="feature-desc">按标签、内容快速搜索</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📤</div>
+                <div class="feature-title">导出功能</div>
+                <div class="feature-desc">导出为 Markdown 或 JSON</div>
+            </div>
+        </div>
+
+        <div class="tip">
+            <div class="tip-title">💡 小提示</div>
+            <div class="tip-content">
+                你的笔记会自动按网页分组保存。同一个网页的所有笔记会保存在同一个 JSON 文件中。你可以随时在选择的文件夹中查看这些文件。
+            </div>
+        </div>
+
+        <div class="cta">
+            <button class="btn" id="setupFolder">📁 设置保存文件夹</button>
+            <p class="hint">设置完成后即可开始使用</p>
+        </div>
+    </div>
+
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/storage.js"></script>
+    <script src="onboarding.js"></script>
+</body>
+
+</html>

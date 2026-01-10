@@ -1,0 +1,32 @@
+# 备份文件
+*.backup
+*.bak
+content.css.backup
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.log
+*.tmp
+.cache/
+
+# 用户数据
+web-notes.json
+
+# Node modules (如果将来需要)
+node_modules/
+package-lock.json
+
+# 构建输出
+dist/
+build/

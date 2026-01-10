@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有笔记 - Web Notes</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="all-notes.css">
+</head>
+
+<body>
+    <div class="page-container">
+        <!-- 顶部导航 -->
+        <header class="page-header">
+            <div class="header-left">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="../icons/logo-new.svg" alt="Logo" width="40" height="40" style="border-radius: 8px;">
+                    <h1 style="margin: 0; font-weight: 800; letter-spacing: -1px;">网页随手记</h1>
+                </div>
+                <div class="stats-summary">
+                    <span id="totalPages">0</span> 个页面 ·
+                    <span id="totalNotes">0</span> 条笔记
+                </div>
+                <div id="syncStatus" class="sync-status" style="margin-left: 15px; font-size: 13px; cursor: pointer;">
+                    🔄 检查状态...
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-secondary" id="exportBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    导出
+                </button>
+                <button class="btn btn-icon" id="themeToggle" title="切换主题">🌓</button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 左侧边栏 -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>🔍 搜索</h3>
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索标签或内容...">
+                </div>
+
+
+
+                <div class="sidebar-section">
+                    <h3>📂 按网页分组</h3>
+                    <div id="pagesList" class="pages-list">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>🏷️ 常用标签</h3>
+                    <div id="tagsList" class="tags-list">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 笔记内容区 -->
+            <main class="notes-content">
+                <div class="view-controls">
+                    <div class="view-mode">
+                        <button class="view-btn active" data-view="pages">按网页</button>
+                        <button class="view-btn" data-view="tags">按标签</button>
+                        <button class="view-btn" data-view="timeline">时间线</button>
+                    </div>
+                    <div class="sort-controls">
+                        <select id="sortSelect" class="sort-select">
+                            <option value="newest">最新优先</option>
+                            <option value="oldest">最早优先</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="notesContainer" class="notes-container">
+                    <div class="loading">加载笔记中...</div>
+                </div>
+
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    <h2>还没有笔记</h2>
+                    <p>开始浏览网页并保存有价值的内容吧！</p>
+                    <button class="btn btn-primary" id="startUsingBtn">开始使用</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- 导出对话框 -->
+    <div class="modal" id="exportModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>导出笔记</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-option">
+                    <button class="export-btn" id="btnExportMd">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                        <div>
+                            <strong>导出为 Markdown</strong>
+                            <p>单个 .md 文件，适合阅读和分享</p>
+                        </div>
+                    </button>
+                </div>
+                <div class="export-option">
+                    <button class="export-btn" id="btnExportJson">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                            <polyline points="13 2 13 9 20 9" />
+                        </svg>
+                        <div>
+                            <strong>导出为 JSON</strong>
+                            <p>原始数据格式，适合备份和迁移</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/storage.js"></script>
+    <script src="all-notes.js"></script>
+</body>
+
+</html>

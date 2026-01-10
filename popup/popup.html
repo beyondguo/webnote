@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Notes</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="popup-container">
+    <!-- 头部 -->
+    <div class="popup-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../icons/logo-new.svg" alt="Logo" width="24" height="24" style="border-radius: 4px;">
+        <h2 style="margin: 0; font-size: 18px;">网页随手记</h2>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-value" id="totalNotes">-</div>
+        <div class="stat-label">总笔记</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalPages">-</div>
+        <div class="stat-label">页面数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="currentPageNotes">-</div>
+        <div class="stat-label">本页笔记</div>
+      </div>
+    </div>
+
+    <!-- 快捷操作 -->
+    <div class="actions-section">
+      <button class="action-btn" id="viewCurrentPage">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <span>查看本页笔记</span>
+      </button>
+
+      <button class="action-btn" id="viewAllNotes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+        <span>查看所有笔记</span>
+      </button>
+
+      <button class="action-btn" id="setupFolder">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        <span>设置保存文件夹</span>
+      </button>
+    </div>
+
+    <div class="tip-section" style="border-top: 1px solid var(--border-color); margin-top: 10px; padding-top: 10px;">
+      <p
+        style="font-size: 10px; color: var(--text-secondary); text-align: center; margin-bottom: 8px; font-style: italic;">
+        Prompted by beyondguo. <br> Created by Gemini 3 Flash
+      </p>
+      <p>💡 <strong>使用方法:</strong> 右键菜单</p>
+      <p>选中文本后右键选择"保存为笔记"</p>
+    </div>
+  </div>
+
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

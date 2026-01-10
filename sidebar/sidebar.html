@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Notes Sidebar</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="sidebar.css">
+</head>
+
+<body>
+    <div class="sidebar-container">
+        <header class="sidebar-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <img src="../icons/logo-new.svg" alt="Logo" width="24" height="24" style="border-radius: 4px;">
+                <h3 style="margin: 0; font-weight: 700;">网页随手记</h3>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="icon-btn" title="切换主题">🌓</button>
+                <button id="openFullPage" class="icon-btn" title="在新标签页中打开">↗️</button>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="搜索笔记或标签...">
+            <div class="filter-tabs">
+                <button class="tab-btn active" data-filter="current">本页</button>
+                <button class="tab-btn" data-filter="all">所有</button>
+            </div>
+        </div>
+
+        <div id="notesList" class="notes-list">
+            <!-- 笔记将在这里渲染 -->
+            <div class="loading">加载中...</div>
+        </div>
+
+        <footer class="sidebar-footer">
+            <div id="syncStatus" class="sync-status">✅ 已同步</div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/storage.js"></script>
+    <script src="sidebar.js"></script>
+</body>
+
+</html>

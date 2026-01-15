@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "网页随手记",
   "version": "0.1.0",
-  "description": "追求随性、方便、简约的网页记录体验。Prompted by beyondguo. Created by Gemini 3 Flash",
+  "description": "追求随性、方便、简约的网页记录体验。Prompted by beyondguo. Created by Antigravity",
   "permissions": [
     "storage",
     "activeTab",

@@ -66,25 +66,44 @@ class StorageManager {
             const handle = await this.getFromDB(db, this.STORAGE_KEY);
 
             if (!handle) {
+                console.log('No saved directory handle found');
                 return false;
             }
 
             // 验证权限
-            const permission = await handle.queryPermission({ mode: 'readwrite' });
+            let permission;
+            try {
+                permission = await handle.queryPermission({ mode: 'readwrite' });
+            } catch (e) {
+                console.warn('Failed to query permission, handle may be invalid:', e);
+                return false;
+            }
 
             if (permission === 'granted') {
                 this.directoryHandle = handle;
+                console.log('Directory handle restored with granted permission');
                 return true;
             } else if (permission === 'prompt') {
-                // 请求权限
-                const newPermission = await handle.requestPermission({ mode: 'readwrite' });
-                if (newPermission === 'granted') {
-                    this.directoryHandle = handle;
-                    return true;
+                // 自动请求权限 - 这会弹出浏览器的权限确认对话框
+                // 但这是必要的，因为用户之前已经选择过文件夹
+                try {
+                    const newPermission = await handle.requestPermission({ mode: 'readwrite' });
+                    if (newPermission === 'granted') {
+                        this.directoryHandle = handle;
+                        console.log('Directory handle restored after re-requesting permission');
+                        return true;
+                    } else {
+                        console.log('Permission request denied by user');
+                        return false;
+                    }
+                } catch (e) {
+                    console.warn('Failed to request permission:', e);
+                    return false;
                 }
+            } else {
+                console.log('Permission denied');
+                return false;
             }
-
-            return false;
         } catch (error) {
             console.error('Failed to restore directory handle:', error);
             return false;

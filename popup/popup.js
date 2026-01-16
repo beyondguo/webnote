@@ -15,6 +15,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.tabs.create({ url: 'pages/all-notes.html' });
     });
 
+    document.getElementById('extractPageContent').addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) {
+            alert('无法获取当前标签页');
+            return;
+        }
+
+        try {
+            // Send message to content script to extract markdown
+            const response = await chrome.tabs.sendMessage(tab.id, { action: 'extractMarkdown' });
+
+            if (response && response.success) {
+                // Save the markdown
+                await chrome.runtime.sendMessage({
+                    action: 'save-page-markdown',
+                    url: tab.url,
+                    markdown: response.markdown,
+                    metadata: response.metadata
+                });
+
+                alert('✅ 页面内容提取成功！\n\n可以在"全部笔记"页面查看。');
+            } else {
+                alert('❌ 提取失败：' + (response?.error || '未知错误'));
+            }
+        } catch (error) {
+            console.error('Extract failed:', error);
+            alert('❌ 提取失败：' + error.message);
+        }
+    });
+
     // Check FS Status
     const hasAccess = await storageManager.ensureFolderAccess(false);
     const setupBtn = document.getElementById('setupFolder');

@@ -516,6 +516,87 @@ class StorageManager {
         await this.directoryHandle.removeEntry(fileName);
     }
 
+    // ========================================
+    // Page Markdown Operations
+    // ========================================
+
+    /**
+     * Save page markdown content
+     * @param {string} url - Page URL
+     * @param {string} markdown - Markdown content
+     * @param {Object} metadata - Optional metadata
+     * @returns {Promise<Object>} Save result
+     */
+    async savePageMarkdown(url, markdown, metadata = {}) {
+        try {
+            const hasAccess = await this.ensureFolderAccess(false);
+            if (!hasAccess) {
+                return { success: false, error: 'No folder access permission' };
+            }
+
+            const fileName = this.getMarkdownFileName(url);
+            const data = {
+                url,
+                markdown,
+                metadata,
+                savedAt: new Date().toISOString()
+            };
+
+            // Write markdown as plain text file
+            const fileHandle = await this.directoryHandle.getFileHandle(fileName, { create: true });
+            const writable = await fileHandle.createWritable();
+
+            // Write metadata as frontmatter + markdown content
+            const content = markdown; // Markdown already includes metadata header from extractor
+            await writable.write(content);
+            await writable.close();
+
+            console.log(`Saved page markdown: ${fileName}`);
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to save page markdown:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
+     * Load page markdown content
+     * @param {string} url - Page URL
+     * @returns {Promise<string|null>} Markdown content or null
+     */
+    async loadPageMarkdown(url) {
+        try {
+            const hasAccess = await this.ensureFolderAccess(false);
+            if (!hasAccess) {
+                return null;
+            }
+
+            const fileName = this.getMarkdownFileName(url);
+            const fileHandle = await this.directoryHandle.getFileHandle(fileName);
+            const file = await fileHandle.getFile();
+            const markdown = await file.text();
+
+            return markdown;
+        } catch (error) {
+            if (error.name === 'NotFoundError') {
+                return null; // File doesn't exist yet
+            }
+            console.error('Failed to load page markdown:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate markdown filename for a URL
+     * @param {string} url - Page URL
+     * @returns {string} Markdown filename
+     */
+    getMarkdownFileName(url) {
+        const normalizedUrl = this.normalizeUrl(url);
+        const hash = hashUrl(normalizedUrl);
+        return `page_${hash}.md`;
+    }
+
     /**
      * 迁移笔记从旧文件夹到新文件夹
      * @param {FileSystemDirectoryHandle} oldHandle - 旧文件夹句柄

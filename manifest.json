@@ -22,7 +22,10 @@
         "<all_urls>"
       ],
       "js": [
+        "libs/readability.min.js",
+        "libs/turndown.min.js",
         "shared/utils.js",
+        "content/markdown-extractor.js",
         "content/content.js"
       ],
       "css": [

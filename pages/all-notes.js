@@ -4,8 +4,9 @@
 
 let allPages = [];
 let currentView = 'pages';
-let currentSort = 'newest';
+let currentSort = 'oldest';
 let searchTerm = '';
+let pageViewStates = {}; // Store view mode (cards/markdown) for each page
 
 const DEBUG = true;
 
@@ -350,7 +351,7 @@ function renderNotes() {
         return;
     }
 
-    // Sort: Newest pages first (based on latest note)
+    // Sort: By default oldest pages first (chronological, matching reading order)
     filteredPages.sort((a, b) => {
         const getLatest = (p) => {
             if (!p.notes || p.notes.length === 0) return 0;
@@ -358,7 +359,7 @@ function renderNotes() {
         };
         const timeA = getLatest(a);
         const timeB = getLatest(b);
-        return currentSort === 'newest' ? timeB - timeA : timeA - timeB;
+        return currentSort === 'oldest' ? timeA - timeB : timeB - timeA;
     });
 
     filteredPages.forEach(page => {
@@ -369,6 +370,11 @@ function renderNotes() {
 
         const pageTitle = page.title || page.pageTitle || page.url || '无标题页面';
 
+        // Check if we have a saved view state for this page, default to markdown
+        const savedViewMode = pageViewStates[pageId] || 'markdown';
+        const isCardsActive = savedViewMode === 'cards';
+        const isMarkdownActive = savedViewMode === 'markdown';
+
         pageGroup.innerHTML = `
             <div class="page-group-header">
                 <div class="page-group-title">
@@ -376,24 +382,31 @@ function renderNotes() {
                     <div class="page-group-url">${page.url}</div>
                 </div>
                 <div class="page-group-controls">
-                     <button class="btn btn-sm view-toggle-btn" data-mode="cards" data-page-id="${pageId}">
+                     <button class="btn btn-sm view-toggle-btn ${isCardsActive ? 'active' : ''}" data-mode="cards" data-page-id="${pageId}">
                         <span class="icon-cards">📄</span> 卡片
                      </button>
-                     <button class="btn btn-sm view-toggle-btn active" data-mode="markdown" data-page-id="${pageId}">
+                     <button class="btn btn-sm view-toggle-btn ${isMarkdownActive ? 'active' : ''}" data-mode="markdown" data-page-id="${pageId}">
                         <span class="icon-md">M⬇</span> 以 Markdown 形式展示
                      </button>
+                    <button class="btn btn-sm btn-view-page-content" data-url="${page.url}" title="查看该网页完整内容">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        查看该网页全部内容
+                    </button>
                     <span class="page-group-count">${page.notes.length} 条笔记</span>
                 </div>
             </div>
-            <div class="page-group-notes" id="${pageId}-notes" style="display:none;"></div>
-            <div class="page-group-markdown" id="${pageId}-markdown"></div>
+            <div class="page-group-notes" id="${pageId}-notes" style="display:${isCardsActive ? 'grid' : 'none'};"></div>
+            <div class="page-group-markdown" id="${pageId}-markdown" style="display:${isMarkdownActive ? 'block' : 'none'};"></div>
         `;
 
         const notesGrid = pageGroup.querySelector('.page-group-notes');
         const markdownContainer = pageGroup.querySelector('.page-group-markdown');
 
-        // Sort notes within page
-        const notes = [...page.notes].sort((a, b) => b.timestamp - a.timestamp);
+        // Sort notes within page (oldest first, matching reading order)
+        const notes = [...page.notes].sort((a, b) => a.timestamp - b.timestamp);
 
         // Render Cards
         notes.forEach(note => {
@@ -461,6 +474,9 @@ function togglePageView(pageGroupId, mode) {
     const notesDiv = group.querySelector('.page-group-notes');
     const mdDiv = group.querySelector('.page-group-markdown');
     const buttons = group.querySelectorAll('.view-toggle-btn');
+
+    // Save the view state for this page
+    pageViewStates[pageGroupId] = mode;
 
     // Update buttons state
     buttons.forEach(btn => {
@@ -672,4 +688,173 @@ function bindEvents() {
             await deleteNote(note, pageUrl);
         }
     });
+
+    // View Page Content Button Delegation
+    document.getElementById('notesContainer').addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-view-page-content');
+        if (!btn) return;
+
+        const pageUrl = btn.dataset.url;
+        if (!pageUrl) return;
+
+        await showPageMarkdown(pageUrl);
+    });
+
+    // Markdown Viewer Modal Controls
+    const markdownViewerModal = document.getElementById('markdownViewerModal');
+    const closeMarkdownViewer = document.getElementById('closeMarkdownViewer');
+    const copyMarkdownBtn = document.getElementById('copyMarkdownBtn');
+    const downloadMarkdownBtn = document.getElementById('downloadMarkdownBtn');
+
+    if (closeMarkdownViewer) {
+        closeMarkdownViewer.addEventListener('click', () => {
+            markdownViewerModal.style.display = 'none';
+        });
+    }
+
+    if (markdownViewerModal) {
+        markdownViewerModal.addEventListener('click', (e) => {
+            if (e.target === markdownViewerModal) {
+                markdownViewerModal.style.display = 'none';
+            }
+        });
+    }
+
+    if (copyMarkdownBtn) {
+        copyMarkdownBtn.addEventListener('click', () => {
+            const markdownContent = document.getElementById('markdownContent').textContent;
+            navigator.clipboard.writeText(markdownContent).then(() => {
+                showNotification('Markdown 已复制到剪贴板', 'success');
+            }).catch(err => {
+                showNotification('复制失败', 'error');
+                console.error('Copy failed:', err);
+            });
+        });
+    }
+
+    if (downloadMarkdownBtn) {
+        downloadMarkdownBtn.addEventListener('click', () => {
+            const markdownContent = document.getElementById('markdownContent').textContent;
+            const pageUrl = markdownViewerModal.dataset.currentUrl || 'page';
+            const filename = `${sanitizeFilename(pageUrl)}.md`;
+            downloadFile(markdownContent, filename, 'text/markdown');
+            showNotification('Markdown 已下载', 'success');
+        });
+    }
+}
+
+// ========================================
+// Markdown Viewer Functions
+// ========================================
+
+async function showPageMarkdown(pageUrl) {
+    const modal = document.getElementById('markdownViewerModal');
+    const markdownContent = document.getElementById('markdownContent');
+
+    // Show loading state
+    markdownContent.textContent = '正在提取页面内容...\n\n⏳ 正在后台打开网页...';
+    modal.style.display = 'flex';
+    modal.dataset.currentUrl = pageUrl;
+
+    let tabId = null;
+
+    try {
+        // First, check if the page is already open in a tab
+        const tabs = await chrome.tabs.query({});
+        const existingTab = tabs.find(tab => storageManager.normalizeUrl(tab.url) === storageManager.normalizeUrl(pageUrl));
+
+        if (existingTab) {
+            // Use existing tab
+            tabId = existingTab.id;
+            markdownContent.textContent = '正在提取页面内容...\n\n✓ 找到已打开的标签页\n⏳ 正在提取内容...';
+        } else {
+            // Open in background tab
+            markdownContent.textContent = '正在提取页面内容...\n\n⏳ 正在后台打开网页...';
+            const newTab = await chrome.tabs.create({
+                url: pageUrl,
+                active: false // Open in background
+            });
+            tabId = newTab.id;
+
+            // Wait for page to load
+            await new Promise((resolve) => {
+                const listener = (updatedTabId, changeInfo) => {
+                    if (updatedTabId === tabId && changeInfo.status === 'complete') {
+                        chrome.tabs.onUpdated.removeListener(listener);
+                        resolve();
+                    }
+                };
+                chrome.tabs.onUpdated.addListener(listener);
+
+                // Timeout after 30 seconds
+                setTimeout(() => {
+                    chrome.tabs.onUpdated.removeListener(listener);
+                    resolve();
+                }, 30000);
+            });
+
+            markdownContent.textContent = '正在提取页面内容...\n\n✓ 页面加载完成\n⏳ 正在提取内容...';
+        }
+
+        // Wait a bit for content script to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Extract markdown from the tab
+        const response = await chrome.tabs.sendMessage(tabId, { action: 'extractMarkdown' });
+
+        if (response && response.success) {
+            const markdown = response.markdown;
+            // Save/overwrite the markdown
+            await storageManager.savePageMarkdown(pageUrl, markdown, response.metadata);
+
+            // Close the tab if we opened it
+            if (!existingTab) {
+                await chrome.tabs.remove(tabId);
+            }
+
+            markdownContent.textContent = markdown;
+        } else {
+            throw new Error(response?.error || '提取失败');
+        }
+
+    } catch (error) {
+        console.error('Failed to extract page markdown:', error);
+
+        // Try to close the tab if we opened it
+        if (tabId) {
+            try {
+                const tab = await chrome.tabs.get(tabId);
+                if (tab && !tabs.find(t => t.id === tabId)) {
+                    await chrome.tabs.remove(tabId);
+                }
+            } catch (e) {
+                // Tab might already be closed
+            }
+        }
+
+        // Try to load saved markdown as fallback
+        try {
+            const savedMarkdown = await storageManager.loadPageMarkdown(pageUrl);
+            if (savedMarkdown) {
+                markdownContent.textContent = savedMarkdown + '\n\n---\n\n⚠️ 注意：自动提取失败，显示的是之前保存的内容。\n\n错误信息：' + error.message;
+            } else {
+                markdownContent.textContent = `提取失败：${error.message}\n\n💡 提示：\n1. 该网页可能需要登录或有访问限制\n2. 网页加载时间过长\n3. 内容脚本未能正确加载\n\n你可以：\n- 手动打开该网页，然后点击插件的"📄 提取页面内容"按钮\n- 或在该网页打开时再次点击此按钮`;
+            }
+        } catch (fallbackError) {
+            markdownContent.textContent = `提取失败：${error.message}\n\n💡 提示：\n1. 该网页可能需要登录或有访问限制\n2. 网页加载时间过长\n3. 内容脚本未能正确加载\n\n你可以：\n- 手动打开该网页，然后点击插件的"📄 提取页面内容"按钮\n- 或在该网页打开时再次点击此按钮`;
+        }
+    }
+}
+
+function sanitizeFilename(url) {
+    try {
+        const urlObj = new URL(url);
+        let filename = urlObj.hostname + urlObj.pathname;
+        filename = filename.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+        filename = filename.replace(/_+/g, '_');
+        filename = filename.substring(0, 100); // Limit length
+        return filename || 'page';
+    } catch (e) {
+        return 'page';
+    }
 }

@@ -45,6 +45,11 @@
                     alert('Error showing save dialog: ' + e.message);
                     console.error(e);
                 }
+            } else if (message.action === 'extractMarkdown') {
+                // 提取页面 Markdown
+                const result = extractPageMarkdown();
+                sendResponse(result);
+                return true; // Keep message channel open for async response
             }
         });
 

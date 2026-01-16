@@ -133,6 +133,9 @@ async function handleMessage(message, sender, sendResponse) {
                 sendResponse({ success: true });
                 return; // Return immediately
 
+            case 'save-page-markdown':
+                await handleSavePageMarkdown(message, sendResponse);
+                break;
 
             default:
                 sendResponse({ success: false, error: 'Unknown action' });
@@ -240,6 +243,18 @@ async function handleRequestFolderAccess(sendResponse) {
         const success = await storageManager.requestFolderAccess();
         sendResponse({ success });
     } catch (error) {
+        sendResponse({ success: false, error: error.message });
+    }
+}
+
+async function handleSavePageMarkdown(message, sendResponse) {
+    const { url, markdown, metadata } = message;
+
+    try {
+        const result = await storageManager.savePageMarkdown(url, markdown, metadata);
+        sendResponse(result);
+    } catch (error) {
+        console.error('Failed to save page markdown:', error);
         sendResponse({ success: false, error: error.message });
     }
 }

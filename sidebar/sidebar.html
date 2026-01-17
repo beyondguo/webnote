@@ -11,6 +11,7 @@
 
 <body>
     <div class="sidebar-container">
+        <!-- Header -->
         <header class="sidebar-header">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <img src="../icons/logo-new.svg" alt="Logo" width="24" height="24" style="border-radius: 4px;">
@@ -18,31 +19,130 @@
             </div>
             <div class="header-actions">
                 <button id="themeToggle" class="icon-btn" title="切换主题">🌓</button>
-                <button id="openFullPage" class="icon-btn" title="在新标签页中打开">↗️</button>
+                <button id="settingsBtn" class="icon-btn" title="设置">⚙️</button>
             </div>
         </header>
 
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="搜索笔记或标签...">
-            <div class="filter-tabs">
-                <button class="tab-btn active" data-filter="current">本页</button>
-                <button class="tab-btn" data-filter="all">所有</button>
+        <!-- Main Tab Navigation -->
+        <div class="main-tabs">
+            <button class="main-tab active" data-tab="notes">
+                <span class="tab-icon">📝</span>
+                <span>笔记</span>
+            </button>
+            <button class="main-tab" data-tab="ai">
+                <span class="tab-icon">🤖</span>
+                <span>AI 助手</span>
+            </button>
+        </div>
+
+        <!-- Notes View -->
+        <div id="notesView" class="tab-view active">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索笔记或标签...">
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="current">本页</button>
+                    <button class="tab-btn" data-filter="all">所有</button>
+                </div>
+            </div>
+
+            <div id="notesList" class="notes-list">
+                <div class="loading">加载中...</div>
+            </div>
+
+            <footer class="sidebar-footer">
+                <button id="openFullPage" class="footer-btn" title="在新标签页中打开">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    查看全部笔记
+                </button>
+            </footer>
+        </div>
+
+        <!-- AI Chat View -->
+        <div id="aiView" class="tab-view">
+            <!-- Page Info -->
+            <div class="ai-page-info" id="aiPageInfo">
+                <div class="page-icon">📄</div>
+                <div class="page-details">
+                    <div class="page-title" id="aiPageTitle">加载中...</div>
+                    <div class="page-url" id="aiPageUrl"></div>
+                </div>
+                <button class="icon-btn new-chat-btn" id="newChatBtn" title="开始新对话">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Content Preview (Collapsible) -->
+            <div class="content-preview-section" id="contentPreviewSection" style="display: none;">
+                <button class="content-preview-toggle" id="contentPreviewToggle">
+                    <span class="toggle-icon">▶</span>
+                    <span class="toggle-text">查看提取的页面内容</span>
+                    <span class="content-length" id="contentLength"></span>
+                </button>
+                <div class="content-preview-body" id="contentPreviewBody">
+                    <pre id="contentPreviewText"></pre>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="ai-welcome" id="aiWelcome">
+                    <div class="welcome-icon">🤖</div>
+                    <p>点击下方按钮开始与 AI 讨论当前页面</p>
+                    <button class="btn btn-primary" id="startChatBtn">开始对话</button>
+                </div>
+                <!-- Loading indicator -->
+                <div class="loading-indicator hidden" id="loadingIndicator">
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="loading-text">正在阅读页面内容...</span>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea id="messageInput" placeholder="输入你的问题..." rows="1" disabled></textarea>
+                    <button class="send-btn" id="sendBtn" title="发送" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-hint">按 Enter 发送，Shift+Enter 换行</div>
             </div>
         </div>
+    </div>
 
-        <div id="notesList" class="notes-list">
-            <!-- 笔记将在这里渲染 -->
-            <div class="loading">加载中...</div>
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h3 class="modal-title">需要配置 AI</h3>
+            <p class="modal-message" id="errorMessage">请先配置 API Key 才能使用 AI 功能。</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="goToSettings">前往设置</button>
+                <button class="btn btn-secondary" id="closeModal">关闭</button>
+            </div>
         </div>
-
-        <footer class="sidebar-footer">
-            <div id="syncStatus" class="sync-status">✅ 已同步</div>
-        </footer>
     </div>
 
     <!-- Scripts -->
+    <script src="../libs/marked.min.js"></script>
     <script src="../shared/utils.js"></script>
     <script src="../shared/storage.js"></script>
+    <script src="../shared/ai-service.js"></script>
+    <script src="../shared/content-extractor.js"></script>
     <script src="sidebar.js"></script>
 </body>
 

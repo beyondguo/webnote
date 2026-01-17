@@ -15,6 +15,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.tabs.create({ url: 'pages/all-notes.html' });
     });
 
+    // Settings button
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('pages/settings.html') });
+    });
+
+    // AI Chat button - Opens sidebar with AI tab
+    document.getElementById('chatWithAI').addEventListener('click', async () => {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) {
+            alert('无法获取当前标签页');
+            return;
+        }
+        // Open sidebar with AI tab
+        await chrome.sidePanel.open({ windowId: tab.windowId });
+        // Send message to switch to AI tab
+        setTimeout(() => {
+            chrome.runtime.sendMessage({ action: 'switch-to-ai-tab' });
+        }, 300);
+    });
+
     document.getElementById('extractPageContent').addEventListener('click', async () => {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (!tab) {

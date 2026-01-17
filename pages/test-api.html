@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试 - 网页随手记</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin: 0 0 24px 0;
+            font-size: 28px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .config-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-left: 4px solid #667eea;
+        }
+
+        .config-info h3 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #475569;
+        }
+
+        .config-item {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #64748b;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .config-item strong {
+            color: #1e293b;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .test-section {
+            margin: 24px 0;
+        }
+
+        .test-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            color: #1e293b;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            min-height: 100px;
+            border: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        .response-box.show {
+            display: block;
+        }
+
+        .response-box.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .response-box.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .response-box h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .response-content {
+            font-size: 14px;
+            color: #1e293b;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        .status-badge.ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.testing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            🧪 API 测试工具
+            <span class="status-badge ready" id="statusBadge">就绪</span>
+        </h1>
+
+        <div class="config-info">
+            <h3>📋 当前配置</h3>
+            <div class="config-item"><strong>API URL:</strong> https://api.siliconflow.cn/v1</div>
+            <div class="config-item"><strong>Model:</strong> Qwen/Qwen2.5-14B-Instruct</div>
+            <div class="config-item"><strong>API Key:</strong> sk-zcuh...gafa (已隐藏)</div>
+        </div>
+
+        <div class="test-section">
+            <h3>💬 测试消息</h3>
+            <textarea id="testMessage" placeholder="输入你想测试的消息...">你好！请用一句话介绍你自己。</textarea>
+
+            <div class="test-buttons">
+                <button class="btn btn-primary" id="testNormalBtn">
+                    🚀 测试普通调用
+                </button>
+                <button class="btn btn-primary" id="testStreamBtn">
+                    ⚡ 测试流式调用
+                </button>
+            </div>
+        </div>
+
+        <div class="response-box" id="responseBox">
+            <h4 id="responseTitle">响应内容</h4>
+            <div class="response-content" id="responseContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // API 配置
+        const API_CONFIG = {
+            apiKey: 'sk-zcuhrdzpnjjzoyrltzpkpoublngyotkyagrysddmfjuogafa',
+            baseUrl: 'https://api.siliconflow.cn/v1',
+            model: 'Qwen/Qwen2.5-14B-Instruct'
+        };
+
+        // 测试普通调用
+        async function testNormalCall() {
+            const message = document.getElementById('testMessage').value.trim();
+            if (!message) {
+                alert('请输入测试消息');
+                return;
+            }
+
+            const btn = document.getElementById('testNormalBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading-spinner"></span> 调用中...';
+            btn.disabled = true;
+
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = '测试中';
+            statusBadge.className = 'status-badge testing';
+
+            const responseBox = document.getElementById('responseBox');
+            const responseContent = document.getElementById('responseContent');
+            const responseTitle = document.getElementById('responseTitle');
+
+            responseBox.classList.remove('success', 'error');
+            responseBox.classList.add('show');
+            responseTitle.textContent = '⏳ 等待响应...';
+            responseContent.textContent = '';
+
+            try {
+                const startTime = Date.now();
+
+                const response = await fetch(`${API_CONFIG.baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: API_CONFIG.model,
+                        messages: [
+                            { role: 'user', content: message }
+                        ],
+                        max_tokens: 500,
+                        temperature: 0.7
+                    })
+                });
+
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiResponse = data.choices[0]?.message?.content || '(无响应内容)';
+
+                responseBox.classList.add('success');
+                responseTitle.textContent = `✅ 调用成功 (耗时: ${duration}s)`;
+                responseContent.textContent = aiResponse;
+
+                statusBadge.textContent = '成功';
+                statusBadge.className = 'status-badge ready';
+
+            } catch (error) {
+                console.error('API call failed:', error);
+                responseBox.classList.add('error');
+                responseTitle.textContent = '❌ 调用失败';
+                responseContent.textContent = `错误信息: ${error.message}`;
+
+                statusBadge.textContent = '失败';
+                statusBadge.className = 'status-badge testing';
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 测试流式调用
+        async function testStreamCall() {
+            const message = document.getElementById('testMessage').value.trim();
+            if (!message) {
+                alert('请输入测试消息');
+                return;
+            }
+
+            const btn = document.getElementById('testStreamBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading-spinner"></span> 流式调用中...';
+            btn.disabled = true;
+
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.textContent = '流式测试中';
+            statusBadge.className = 'status-badge testing';
+
+            const responseBox = document.getElementById('responseBox');
+            const responseContent = document.getElementById('responseContent');
+            const responseTitle = document.getElementById('responseTitle');
+
+            responseBox.classList.remove('success', 'error');
+            responseBox.classList.add('show');
+            responseTitle.textContent = '⚡ 流式响应中...';
+            responseContent.textContent = '';
+
+            try {
+                const startTime = Date.now();
+
+                const response = await fetch(`${API_CONFIG.baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: API_CONFIG.model,
+                        messages: [
+                            { role: 'user', content: message }
+                        ],
+                        max_tokens: 500,
+                        temperature: 0.7,
+                        stream: true
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullContent = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6);
+                            if (data === '[DONE]') continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                const content = parsed.choices[0]?.delta?.content || '';
+                                if (content) {
+                                    fullContent += content;
+                                    responseContent.textContent = fullContent;
+                                }
+                            } catch (e) {
+                                // Skip invalid JSON lines
+                            }
+                        }
+                    }
+                }
+
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+                responseBox.classList.add('success');
+                responseTitle.textContent = `✅ 流式调用成功 (耗时: ${duration}s)`;
+
+                statusBadge.textContent = '成功';
+                statusBadge.className = 'status-badge ready';
+
+            } catch (error) {
+                console.error('Stream call failed:', error);
+                responseBox.classList.add('error');
+                responseTitle.textContent = '❌ 流式调用失败';
+                responseContent.textContent = `错误信息: ${error.message}`;
+
+                statusBadge.textContent = '失败';
+                statusBadge.className = 'status-badge testing';
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 事件监听
+        document.getElementById('testNormalBtn').addEventListener('click', testNormalCall);
+        document.getElementById('testStreamBtn').addEventListener('click', testStreamCall);
+    </script>
+</body>
+
+</html>

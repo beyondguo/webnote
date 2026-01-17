@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 阅读助手 - 网页随手记</title>
+    <link rel="stylesheet" href="../shared/styles.css">
+    <link rel="stylesheet" href="ai-chat.css">
+</head>
+
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-left">
+                <button class="icon-btn" id="backBtn" title="返回">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div class="header-title">
+                    <span class="title-icon">🤖</span>
+                    <span class="title-text">AI 阅读助手</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="settingsBtn" title="设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Info -->
+        <div class="page-info" id="pageInfo">
+            <div class="page-icon">📄</div>
+            <div class="page-details">
+                <div class="page-title" id="pageTitle">加载中...</div>
+                <div class="page-url" id="pageUrl"></div>
+            </div>
+        </div>
+
+        <!-- Page Content Preview (Collapsible) -->
+        <div class="content-preview-section" id="contentPreviewSection" style="display: none;">
+            <button class="content-preview-toggle" id="contentPreviewToggle">
+                <span class="toggle-icon">▶</span>
+                <span class="toggle-text">查看提取的页面内容</span>
+                <span class="content-length" id="contentLength"></span>
+            </button>
+            <div class="content-preview-body" id="contentPreviewBody">
+                <pre id="contentPreviewText"></pre>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer">
+            <!-- Messages will be rendered here -->
+            <div class="loading-indicator" id="loadingIndicator">
+                <div class="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span class="loading-text">正在阅读页面内容...</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="messageInput" placeholder="输入你的问题..." rows="1"></textarea>
+                <button class="send-btn" id="sendBtn" title="发送" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-hint">按 Enter 发送，Shift+Enter 换行</div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <h3 class="modal-title">需要配置 AI</h3>
+            <p class="modal-message" id="errorMessage">请先配置 API Key 才能使用 AI 功能。</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="goToSettings">前往设置</button>
+                <button class="btn btn-secondary" id="closeModal">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/storage.js"></script>
+    <script src="../shared/ai-service.js"></script>
+    <script src="../shared/content-extractor.js"></script>
+    <script src="ai-chat.js"></script>
+</body>
+
+</html>

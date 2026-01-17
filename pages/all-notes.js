@@ -752,65 +752,19 @@ async function showPageMarkdown(pageUrl) {
     const markdownContent = document.getElementById('markdownContent');
 
     // Show loading state
-    markdownContent.textContent = '正在提取页面内容...\n\n⏳ 正在后台打开网页...';
+    markdownContent.textContent = '正在提取页面内容...\n\n⏳ 请稍候...';
     modal.style.display = 'flex';
     modal.dataset.currentUrl = pageUrl;
 
-    let tabId = null;
-
     try {
-        // First, check if the page is already open in a tab
-        const tabs = await chrome.tabs.query({});
-        const existingTab = tabs.find(tab => storageManager.normalizeUrl(tab.url) === storageManager.normalizeUrl(pageUrl));
-
-        if (existingTab) {
-            // Use existing tab
-            tabId = existingTab.id;
-            markdownContent.textContent = '正在提取页面内容...\n\n✓ 找到已打开的标签页\n⏳ 正在提取内容...';
-        } else {
-            // Open in background tab
-            markdownContent.textContent = '正在提取页面内容...\n\n⏳ 正在后台打开网页...';
-            const newTab = await chrome.tabs.create({
-                url: pageUrl,
-                active: false // Open in background
-            });
-            tabId = newTab.id;
-
-            // Wait for page to load
-            await new Promise((resolve) => {
-                const listener = (updatedTabId, changeInfo) => {
-                    if (updatedTabId === tabId && changeInfo.status === 'complete') {
-                        chrome.tabs.onUpdated.removeListener(listener);
-                        resolve();
-                    }
-                };
-                chrome.tabs.onUpdated.addListener(listener);
-
-                // Timeout after 30 seconds
-                setTimeout(() => {
-                    chrome.tabs.onUpdated.removeListener(listener);
-                    resolve();
-                }, 30000);
-            });
-
-            markdownContent.textContent = '正在提取页面内容...\n\n✓ 页面加载完成\n⏳ 正在提取内容...';
-        }
-
-        // Wait a bit for content script to initialize
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Extract markdown from the tab
-        const response = await chrome.tabs.sendMessage(tabId, { action: 'extractMarkdown' });
+        const response = await extractMarkdownFromUrl(pageUrl, (progress) => {
+            markdownContent.textContent = '正在提取页面内容...\n\n' + progress;
+        });
 
         if (response && response.success) {
             const markdown = response.markdown;
             // Save/overwrite the markdown
             await storageManager.savePageMarkdown(pageUrl, markdown, response.metadata);
-
-            // Close the tab if we opened it
-            if (!existingTab) {
-                await chrome.tabs.remove(tabId);
-            }
 
             markdownContent.textContent = markdown;
         } else {
@@ -819,18 +773,6 @@ async function showPageMarkdown(pageUrl) {
 
     } catch (error) {
         console.error('Failed to extract page markdown:', error);
-
-        // Try to close the tab if we opened it
-        if (tabId) {
-            try {
-                const tab = await chrome.tabs.get(tabId);
-                if (tab && !tabs.find(t => t.id === tabId)) {
-                    await chrome.tabs.remove(tabId);
-                }
-            } catch (e) {
-                // Tab might already be closed
-            }
-        }
 
         // Try to load saved markdown as fallback
         try {

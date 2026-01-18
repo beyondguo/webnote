@@ -299,6 +299,8 @@ async function startAIChat() {
 
     currentTabId = tab.id;
     const pageUrl = tab.url;
+    // Update global currentUrl to ensure saving uses the correct URL
+    currentUrl = pageUrl;
     const pageTitle = tab.title || '未知页面';
 
     document.getElementById('aiPageTitle').textContent = pageTitle;
@@ -646,6 +648,16 @@ function bindEvents() {
 
     // AI Chat - New chat button (clears cache and starts fresh)
     document.getElementById('newChatBtn').addEventListener('click', async () => {
+        // Get fresh URL before clearing
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab) {
+                currentUrl = tab.url;
+            }
+        } catch (e) {
+            console.error('Failed to get current tab:', e);
+        }
+
         if (currentUrl) {
             await clearChatSession(currentUrl);
         }
@@ -712,6 +724,29 @@ function bindEvents() {
             }
         } catch (e) {
             // Tab might have been closed
+        }
+    });
+
+    // Listen for tab updates (navigation within same tab)
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        if (tabId === currentTabId && changeInfo.status === 'complete') {
+            currentUrl = tab.url;
+
+            // Re-render notes as URL changed
+            if (currentFilter === 'current') {
+                renderNotes();
+            }
+
+            // Update AI tab info if active
+            if (document.querySelector('.main-tab[data-tab="ai"]').classList.contains('active')) {
+                document.getElementById('aiPageTitle').textContent = tab.title || '未知页面';
+                document.getElementById('aiPageUrl').textContent = tab.url;
+
+                // Reset chat if URL changed
+                if (chatInitialized) {
+                    resetChat();
+                }
+            }
         }
     });
 }

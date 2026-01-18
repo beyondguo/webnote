@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "网页随手记",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "追求随性、方便、简约的网页记录体验。Prompted by beyondguo. Created by Antigravity",
   "permissions": [
     "storage",

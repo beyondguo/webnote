@@ -19,7 +19,7 @@ chrome.runtime.onInstalled.addListener(() => {
     // 创建右键菜单
     chrome.contextMenus.create({
         id: 'save-note',
-        title: '💾 保存为笔记',
+        title: '💾 保存到<网页随手记>',
         contexts: ['selection']
     });
 });

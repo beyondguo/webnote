@@ -17,6 +17,10 @@ let isProcessing = false;
 let chatInitialized = false;
 let currentTabId = null;
 
+// Note saving state
+let currentSelection = null;
+let saveDialog = null;
+
 // System prompt for the AI
 const SYSTEM_PROMPT = `你是一个智能阅读助手，帮助用户理解和讨论网页内容。
 
@@ -154,6 +158,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!chatInitialized) {
                 startAIChat();
             }
+            sendResponse({ success: true });
+        } else if (message.action === 'save-note-from-context') {
+            // Handle save note from context menu
+            currentSelection = {
+                text: message.selectedText,
+                range: null
+            };
+            showSaveDialog();
             sendResponse({ success: true });
         }
         return true;
@@ -731,3 +743,263 @@ function resetChat() {
         startAIChat();
     });
 }
+
+// ========================================
+// Note Saving Functions (for sidebar)
+// ========================================
+
+function createSaveDialog() {
+    const dialog = document.createElement('div');
+    dialog.id = 'web-notes-save-dialog';
+    dialog.className = 'web-notes-dialog-overlay';
+
+    dialog.innerHTML = `
+      <div class="web-notes-dialog fade-in">
+        <div class="web-notes-dialog-header">
+          <h3>保存笔记</h3>
+          <button class="web-notes-close-btn" title="关闭">×</button>
+        </div>
+        
+        <div class="web-notes-dialog-body">
+          <div class="web-notes-form-group">
+            <label id="web-notes-selected-label">选中的文本</label>
+            <div class="web-notes-selected-text" aria-labelledby="web-notes-selected-label" role="textbox" aria-readonly="true"></div>
+          </div>
+          
+          <div class="web-notes-form-group">
+            <label for="web-notes-tags-id">标签 <span class="web-notes-hint">(用空格分隔多个标签)</span></label>
+            <input type="text" id="web-notes-tags-id" name="tags" class="web-notes-tags-input" placeholder="例如: 工作 重要 学习">
+            <div class="web-notes-existing-tags"></div>
+          </div>
+          
+          <div class="web-notes-form-group">
+            <label for="web-notes-note-id">备注 <span class="web-notes-hint">(可选)</span></label>
+            <textarea id="web-notes-note-id" name="note" class="web-notes-note-input" placeholder="添加额外的备注..." rows="3"></textarea>
+          </div>
+        </div>
+        
+        <div class="web-notes-dialog-footer">
+          <button class="web-notes-btn web-notes-btn-secondary web-notes-cancel-btn">取消</button>
+          <button class="web-notes-btn web-notes-btn-primary web-notes-save-confirm-btn">保存</button>
+        </div>
+      </div>
+    `;
+
+    // Event listeners
+    const closeBtn = dialog.querySelector('.web-notes-close-btn');
+    const cancelBtn = dialog.querySelector('.web-notes-cancel-btn');
+    const saveBtn = dialog.querySelector('.web-notes-save-confirm-btn');
+
+    closeBtn.addEventListener('click', hideSaveDialog);
+    cancelBtn.addEventListener('click', hideSaveDialog);
+    saveBtn.addEventListener('click', handleSaveNote);
+
+    // Prevent event bubbling
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+            e.preventDefault();
+            e.stopPropagation();
+            hideSaveDialog();
+        }
+    });
+
+    // Input handlers
+    const tagsInput = dialog.querySelector('.web-notes-tags-input');
+    const noteInput = dialog.querySelector('.web-notes-note-input');
+
+    tagsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+            e.preventDefault();
+            handleSaveNote();
+        }
+    });
+
+    noteInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            handleSaveNote();
+        }
+    });
+
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dialog.style.display === 'flex') {
+            hideSaveDialog();
+        }
+    });
+
+    return dialog;
+}
+
+function showSaveDialog() {
+    if (!saveDialog) {
+        saveDialog = createSaveDialog();
+        document.body.appendChild(saveDialog);
+    }
+
+    if (!currentSelection) {
+        showNotification('请先选择要保存的文本', 'info');
+        return;
+    }
+
+    // Fill selected text
+    const selectedTextDiv = saveDialog.querySelector('.web-notes-selected-text');
+    selectedTextDiv.textContent = truncateText(currentSelection.text, 200);
+
+    // Load existing tags
+    loadExistingTagsForDialog();
+
+    // Clear inputs
+    saveDialog.querySelector('.web-notes-tags-input').value = '';
+    saveDialog.querySelector('.web-notes-note-input').value = '';
+
+    // Show dialog
+    saveDialog.style.display = 'flex';
+
+    // Focus on tags input
+    setTimeout(() => {
+        saveDialog.querySelector('.web-notes-tags-input').focus();
+    }, 100);
+}
+
+function hideSaveDialog() {
+    if (saveDialog) {
+        saveDialog.style.display = 'none';
+    }
+}
+
+async function loadExistingTagsForDialog() {
+    try {
+        const response = await chrome.runtime.sendMessage({ action: 'get-all-tags' });
+
+        if (response && response.tags && response.tags.length > 0) {
+            const tagsContainer = saveDialog.querySelector('.web-notes-existing-tags');
+            tagsContainer.innerHTML = '<div class="web-notes-tags-label">已有标签：</div>';
+
+            const tagsDiv = document.createElement('div');
+            tagsDiv.className = 'web-notes-tags-list';
+
+            response.tags.slice(0, 10).forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'web-notes-tag-chip';
+                tagSpan.textContent = tag;
+                tagSpan.style.backgroundColor = getTagColor(tag);
+
+                // Click tag to add to input
+                tagSpan.addEventListener('click', () => {
+                    const input = saveDialog.querySelector('.web-notes-tags-input');
+                    const currentTags = input.value.trim();
+                    if (currentTags) {
+                        input.value = currentTags + ' ' + tag;
+                    } else {
+                        input.value = tag;
+                    }
+                    input.focus();
+                });
+
+                tagsDiv.appendChild(tagSpan);
+            });
+
+            tagsContainer.appendChild(tagsDiv);
+        }
+    } catch (error) {
+        console.error('Failed to load existing tags:', error);
+    }
+}
+
+async function handleSaveNote() {
+    if (!currentSelection) {
+        showNotification('没有选中的文本', 'error');
+        return;
+    }
+
+    const tagsInput = saveDialog.querySelector('.web-notes-tags-input').value;
+    const noteInput = saveDialog.querySelector('.web-notes-note-input').value;
+
+    // Build note data
+    const noteData = {
+        id: generateId(),
+        text: currentSelection.text,
+        tags: parseTags(tagsInput),
+        note: noteInput.trim(),
+        timestamp: new Date().toISOString()
+    };
+
+    // Get page info - use the current tab's URL, not the sidebar URL
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const pageInfo = {
+        title: tab?.title || document.getElementById('aiPageTitle')?.textContent || '未知页面',
+        url: currentUrl || tab?.url || window.location.href
+    };
+
+    // Send to background to save
+    try {
+        const response = await chrome.runtime.sendMessage({
+            action: 'save-note',
+            pageInfo: pageInfo,
+            noteData: noteData
+        });
+
+        if (response && response.success) {
+            if (response.warning === 'fs_failed') {
+                showNotification('已保存到缓存，但未同步到文件', 'warning');
+            } else {
+                showNotification('笔记保存成功！', 'success');
+            }
+            hideSaveDialog();
+            currentSelection = null;
+
+            // Reload notes to show the new one
+            await loadNotes();
+        } else {
+            showNotification('保存失败：' + (response.error || '未知错误'), 'error');
+        }
+    } catch (error) {
+        console.error('Failed to save note:', error);
+        showNotification('保存失败: ' + error.message, 'error');
+    }
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999999;
+        max-width: 300px;
+        animation: fadeIn 0.25s ease;
+    `;
+
+    // Set background color based on type
+    if (type === 'success') {
+        notification.style.background = '#48bb78';
+        notification.style.color = 'white';
+    } else if (type === 'error') {
+        notification.style.background = '#f56565';
+        notification.style.color = 'white';
+    } else if (type === 'warning') {
+        notification.style.background = '#ed8936';
+        notification.style.color = 'white';
+    } else {
+        notification.style.background = '#667eea';
+        notification.style.color = 'white';
+    }
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.25s ease';
+        setTimeout(() => notification.remove(), 250);
+    }, 3000);
+
+    return notification;
+}
+

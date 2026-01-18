@@ -779,3 +779,303 @@
     color: var(--text-secondary);
     font-size: 13px;
 }
+
+/* ========================================
+   Save Note Dialog Styles
+   ======================================== */
+
+/* Dialog overlay */
+.web-notes-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Dialog main body */
+.web-notes-dialog {
+    background: var(--bg-primary) !important;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dialog header */
+.web-notes-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary) !important;
+    flex-shrink: 0;
+}
+
+.web-notes-dialog-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.web-notes-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.web-notes-close-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Dialog body */
+.web-notes-dialog-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+    background: var(--bg-primary) !important;
+}
+
+.web-notes-form-group {
+    margin-bottom: 20px;
+}
+
+.web-notes-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.web-notes-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.web-notes-hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* Selected text display */
+.web-notes-selected-text {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary) !important;
+    max-height: 120px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* Input fields */
+.web-notes-tags-input,
+.web-notes-note-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-primary) !important;
+    transition: all 0.2s ease;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.web-notes-tags-input:focus,
+.web-notes-note-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.web-notes-note-input {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Existing tags */
+.web-notes-existing-tags {
+    margin-top: 8px;
+}
+
+.web-notes-tags-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.web-notes-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.web-notes-tag-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.web-notes-tag-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Dialog footer */
+.web-notes-dialog-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 24px;
+    background: var(--bg-primary) !important;
+    margin: 0 !important;
+    border: none !important;
+    flex-shrink: 0;
+}
+
+/* Buttons */
+.web-notes-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.web-notes-btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.web-notes-btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.web-notes-btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.web-notes-btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999999;
+    max-width: 300px;
+}
+
+.notification-success {
+    background: #48bb78;
+    color: white;
+}
+
+.notification-error {
+    background: #f56565;
+    color: white;
+}
+
+.notification-warning {
+    background: #ed8936;
+    color: white;
+}
+
+.notification-info {
+    background: #667eea;
+    color: white;
+}
+
+/* Animations */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.25s ease;
+}
+
+/* Scrollbar for dialog */
+.web-notes-dialog-body::-webkit-scrollbar,
+.web-notes-selected-text::-webkit-scrollbar {
+    width: 6px;
+}
+
+.web-notes-dialog-body::-webkit-scrollbar-track,
+.web-notes-selected-text::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.web-notes-dialog-body::-webkit-scrollbar-thumb,
+.web-notes-selected-text::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.web-notes-dialog-body::-webkit-scrollbar-thumb:hover,
+.web-notes-selected-text::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}

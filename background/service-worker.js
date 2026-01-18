@@ -32,8 +32,22 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             selectedText: info.selectionText
         };
 
+        // Check if this is from sidebar (tab.id will be -1)
+        if (!tab || tab.id === -1 || tab.id < 0) {
+            // This is from sidebar or extension page, send message to runtime
+            try {
+                // Send runtime message to sidebar
+                chrome.runtime.sendMessage(message).catch(e => {
+                    console.log('Runtime message failed (expected if no listeners):', e);
+                });
+            } catch (error) {
+                console.error('Failed to send message to sidebar:', error);
+            }
+            return;
+        }
+
         try {
-            // 尝试发送消息
+            // 尝试发送消息到普通网页tab
             await chrome.tabs.sendMessage(tab.id, message);
         } catch (error) {
             console.log('Content script not ready, injecting scripts...', error);

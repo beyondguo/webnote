@@ -378,7 +378,10 @@ function renderNotes() {
         pageGroup.innerHTML = `
             <div class="page-group-header">
                 <div class="page-group-title">
-                    <h2 title="${page.url}"><a href="${page.url}" target="_blank" style="color:inherit;text-decoration:none;hover:text-decoration:underline;">${escapeHtml(pageTitle)}</a></h2>
+                    <h2 title="${page.url}">
+                        <a href="${page.url}" target="_blank" style="color:inherit;text-decoration:none;">${escapeHtml(pageTitle)}</a>
+                        <button class="edit-title-btn" data-url="${page.url}" data-title="${escapeHtml(pageTitle)}" title="编辑标题">✏️</button>
+                    </h2>
                     <div class="page-group-url">${page.url}</div>
                 </div>
                 <div class="page-group-controls">
@@ -426,14 +429,20 @@ function renderNotes() {
                 </div>
             `;
 
+            // 判断内容是否需要截断（超过约150字符或3行）
+            const needsTruncation = note.text && note.text.length > 150;
+            const textClass = needsTruncation ? 'note-text note-text-truncate' : 'note-text';
+            const noteNoteClass = note.note && note.note.length > 100 ? 'note-note note-note-truncate' : 'note-note';
+
             card.innerHTML = `
                 <div class="note-header">
                     <span class="note-time">${formatDate(note.timestamp)}</span>
                     ${actionsHtml}
                 </div>
                 <div class="note-tags">${tagsHtml}</div>
-                <div class="note-text">${escapeHtml(note.text)}</div>
-                ${note.note ? `<div class="note-note">📝 ${escapeHtml(note.note)}</div>` : ''}
+                <div class="${textClass}" data-note-id="${note.id}">${escapeHtml(note.text)}</div>
+                ${needsTruncation ? `<button class="expand-btn visible" data-note-id="${note.id}">展开全文 ▼</button>` : ''}
+                ${note.note ? `<div class="${noteNoteClass}">📝 ${escapeHtml(note.note)}</div>` : ''}
             `;
 
             notesGrid.appendChild(card);
@@ -502,25 +511,44 @@ function generateIdFromUrl(url) {
 }
 
 
+// Edit state
+let currentEditNote = null;
+let currentEditPageUrl = null;
+let currentEditTitleUrl = null;
+
 async function editNote(note, pageUrl) {
-    const newText = prompt('编辑文本:', note.text);
-    if (newText === null) return;
+    // Store current note being edited
+    currentEditNote = note;
+    currentEditPageUrl = pageUrl;
 
-    const newTags = prompt('编辑标签 (空格分隔):', note.tags ? note.tags.join(' ') : '');
-    if (newTags === null) return;
+    // Populate modal fields
+    document.getElementById('editNoteText').value = note.text || '';
+    document.getElementById('editNoteTags').value = note.tags ? note.tags.join(' ') : '';
+    document.getElementById('editNoteComment').value = note.note || '';
 
-    const newNote = prompt('编辑备注:', note.note || '');
-    if (newNote === null) return;
+    // Show modal
+    document.getElementById('editNoteModal').style.display = 'flex';
+
+    // Focus on text field
+    document.getElementById('editNoteText').focus();
+}
+
+async function saveEditNote() {
+    if (!currentEditNote || !currentEditPageUrl) return;
+
+    const newText = document.getElementById('editNoteText').value;
+    const newTags = document.getElementById('editNoteTags').value;
+    const newNote = document.getElementById('editNoteComment').value;
 
     try {
-        // 直接使用 storageManager
-        const result = await storageManager.updateNote(pageUrl, note.id, {
+        const result = await storageManager.updateNote(currentEditPageUrl, currentEditNote.id, {
             text: newText,
             tags: parseTags(newTags),
             note: newNote
         });
 
         if (result && result.success) {
+            closeEditNoteModal();
             await loadAllNotes();
             showNotification('笔记已更新', 'success');
         } else {
@@ -530,6 +558,50 @@ async function editNote(note, pageUrl) {
         console.error('Failed to update note:', error);
         showNotification('更新失败', 'error');
     }
+}
+
+function closeEditNoteModal() {
+    document.getElementById('editNoteModal').style.display = 'none';
+    currentEditNote = null;
+    currentEditPageUrl = null;
+}
+
+// Edit Page Title Functions
+function openEditTitleModal(url, currentTitle) {
+    currentEditTitleUrl = url;
+    document.getElementById('editPageTitle').value = currentTitle || '';
+    document.getElementById('editPageUrl').textContent = url;
+    document.getElementById('editTitleModal').style.display = 'flex';
+    document.getElementById('editPageTitle').focus();
+}
+
+async function saveEditTitle() {
+    if (!currentEditTitleUrl) return;
+
+    const newTitle = document.getElementById('editPageTitle').value.trim();
+    if (!newTitle) {
+        showNotification('标题不能为空', 'error');
+        return;
+    }
+
+    try {
+        const result = await storageManager.updatePageTitle(currentEditTitleUrl, newTitle);
+        if (result && result.success) {
+            closeEditTitleModal();
+            await loadAllNotes();
+            showNotification('标题已更新', 'success');
+        } else {
+            showNotification('更新失败', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to update title:', error);
+        showNotification('更新失败', 'error');
+    }
+}
+
+function closeEditTitleModal() {
+    document.getElementById('editTitleModal').style.display = 'none';
+    currentEditTitleUrl = null;
 }
 
 async function deleteNote(note, pageUrl) {
@@ -698,6 +770,83 @@ function bindEvents() {
         if (!pageUrl) return;
 
         await showPageMarkdown(pageUrl);
+    });
+
+    // Expand/Collapse Button Delegation
+    document.getElementById('notesContainer').addEventListener('click', (e) => {
+        const btn = e.target.closest('.expand-btn');
+        if (!btn) return;
+
+        const noteId = btn.dataset.noteId;
+        const card = btn.closest('.note-card');
+        if (!card) return;
+
+        const textDiv = card.querySelector(`.note-text-truncate[data-note-id="${noteId}"]`);
+        const noteDiv = card.querySelector('.note-note-truncate');
+
+        if (textDiv) {
+            const isExpanded = textDiv.classList.toggle('expanded');
+            if (noteDiv) noteDiv.classList.toggle('expanded', isExpanded);
+            btn.textContent = isExpanded ? '收起 ▲' : '展开全文 ▼';
+        }
+    });
+
+    // Edit Note Modal Controls
+    const editNoteModal = document.getElementById('editNoteModal');
+    const closeEditNoteBtn = document.getElementById('closeEditNoteModal');
+    const cancelEditNoteBtn = document.getElementById('cancelEditNoteBtn');
+    const saveEditNoteBtn = document.getElementById('saveEditNoteBtn');
+
+    if (closeEditNoteBtn) {
+        closeEditNoteBtn.addEventListener('click', closeEditNoteModal);
+    }
+    if (cancelEditNoteBtn) {
+        cancelEditNoteBtn.addEventListener('click', closeEditNoteModal);
+    }
+    if (saveEditNoteBtn) {
+        saveEditNoteBtn.addEventListener('click', saveEditNote);
+    }
+    if (editNoteModal) {
+        editNoteModal.addEventListener('click', (e) => {
+            if (e.target === editNoteModal) {
+                closeEditNoteModal();
+            }
+        });
+    }
+
+    // Edit Title Modal Controls
+    const editTitleModal = document.getElementById('editTitleModal');
+    const closeEditTitleBtn = document.getElementById('closeEditTitleModal');
+    const cancelEditTitleBtn = document.getElementById('cancelEditTitleBtn');
+    const saveEditTitleBtn = document.getElementById('saveEditTitleBtn');
+
+    if (closeEditTitleBtn) {
+        closeEditTitleBtn.addEventListener('click', closeEditTitleModal);
+    }
+    if (cancelEditTitleBtn) {
+        cancelEditTitleBtn.addEventListener('click', closeEditTitleModal);
+    }
+    if (saveEditTitleBtn) {
+        saveEditTitleBtn.addEventListener('click', saveEditTitle);
+    }
+    if (editTitleModal) {
+        editTitleModal.addEventListener('click', (e) => {
+            if (e.target === editTitleModal) {
+                closeEditTitleModal();
+            }
+        });
+    }
+
+    // Edit Title Button Delegation
+    document.getElementById('notesContainer').addEventListener('click', (e) => {
+        const btn = e.target.closest('.edit-title-btn');
+        if (!btn) return;
+
+        const url = btn.dataset.url;
+        const title = btn.dataset.title;
+        if (url) {
+            openEditTitleModal(url, title);
+        }
     });
 
     // Markdown Viewer Modal Controls

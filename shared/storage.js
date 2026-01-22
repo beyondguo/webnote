@@ -385,6 +385,48 @@ class StorageManager {
     }
 
     /**
+     * 更新页面标题
+     * @param {string} url - 网页URL
+     * @param {string} newTitle - 新标题
+     * @returns {Promise<Object>} 更新结果
+     */
+    async updatePageTitle(url, newTitle) {
+        try {
+            // 1. 更新文件系统
+            const fileName = this.getFileName(url);
+            const fileData = await this.readFile(fileName);
+
+            if (fileData) {
+                fileData.pageTitle = newTitle;
+                fileData.customTitle = newTitle; // 保存自定义标题
+                fileData.updatedAt = new Date().toISOString();
+                await this.writeFile(fileName, fileData);
+            }
+
+            // 2. 更新缓存
+            try {
+                const cacheKey = `cache_${this.normalizeUrl(url)}`;
+                const cacheResult = await chrome.storage.local.get(cacheKey);
+                let cacheData = cacheResult[cacheKey];
+
+                if (cacheData) {
+                    cacheData.pageTitle = newTitle;
+                    cacheData.customTitle = newTitle;
+                    cacheData.updatedAt = new Date().toISOString();
+                    await chrome.storage.local.set({ [cacheKey]: cacheData });
+                }
+            } catch (e) {
+                console.warn('Failed to update cache title:', e);
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Failed to update page title:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
      * 删除笔记
      * @param {string} url - 网页URL
      * @param {string} noteId - 笔记ID

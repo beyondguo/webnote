@@ -375,6 +375,68 @@ body {
     margin: 8px 0;
 }
 
+/* 卡片内容截断 - 默认只显示3行 */
+.note-text-truncate {
+    position: relative;
+    max-height: calc(1.6em * 3);
+    /* 3 lines */
+    overflow: hidden;
+}
+
+.note-text-truncate::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.6em;
+    background: linear-gradient(to bottom, transparent, var(--bg-primary));
+    pointer-events: none;
+}
+
+.note-text-truncate.expanded {
+    max-height: none;
+}
+
+.note-text-truncate.expanded::after {
+    display: none;
+}
+
+/* 展开/收起按钮 */
+.expand-btn {
+    display: none;
+    width: 100%;
+    padding: 4px 0;
+    margin-top: 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: color 0.15s;
+}
+
+.expand-btn:hover {
+    color: var(--text-primary);
+}
+
+.expand-btn.visible {
+    display: block;
+}
+
+/* 备注也截断 */
+.note-note-truncate {
+    max-height: calc(1.6em * 2);
+    /* 2 lines */
+    overflow: hidden;
+    position: relative;
+}
+
+.note-note-truncate.expanded {
+    max-height: none;
+}
+
 .note-tags {
     gap: 6px;
     display: flex;
@@ -404,6 +466,84 @@ body {
     border: 1px solid transparent;
     margin-top: 12px;
     font-style: italic;
+}
+
+/* Edit Modal Form Styles */
+.edit-field {
+    margin-bottom: 16px;
+}
+
+.edit-field:last-child {
+    margin-bottom: 0;
+}
+
+.edit-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.edit-field .label-hint {
+    font-weight: 400;
+    color: var(--text-tertiary);
+}
+
+.edit-field input[type="text"],
+.edit-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    resize: vertical;
+}
+
+.edit-field input[type="text"]:focus,
+.edit-field textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.edit-field textarea {
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.url-display {
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    word-break: break-all;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+/* Edit title button in header */
+.edit-title-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    margin-left: 8px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+    font-size: 14px;
+}
+
+.edit-title-btn:hover {
+    opacity: 1;
+}
+
+.page-group-header:hover .edit-title-btn {
+    opacity: 0.7;
 }
 
 /* Export Modal */

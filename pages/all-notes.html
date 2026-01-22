@@ -170,6 +170,58 @@
         </div>
     </div>
 
+    <!-- Edit Note Modal -->
+    <div class="modal" id="editNoteModal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>✏️ 编辑笔记</h3>
+                <button class="modal-close" id="closeEditNoteModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-field">
+                    <label for="editNoteText">文本内容</label>
+                    <textarea id="editNoteText" rows="6" placeholder="笔记内容..."></textarea>
+                </div>
+                <div class="edit-field">
+                    <label for="editNoteTags">标签 <span class="label-hint">(空格分隔)</span></label>
+                    <input type="text" id="editNoteTags" placeholder="标签1 标签2 标签3">
+                </div>
+                <div class="edit-field">
+                    <label for="editNoteComment">备注</label>
+                    <textarea id="editNoteComment" rows="2" placeholder="添加备注..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" id="cancelEditNoteBtn">取消</button>
+                <button class="btn btn-primary" id="saveEditNoteBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Page Title Modal -->
+    <div class="modal" id="editTitleModal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>📝 编辑页面标题</h3>
+                <button class="modal-close" id="closeEditTitleModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-field">
+                    <label for="editPageTitle">自定义标题</label>
+                    <input type="text" id="editPageTitle" placeholder="输入新标题...">
+                </div>
+                <div class="edit-field" style="margin-top: 12px;">
+                    <label>原始链接</label>
+                    <div id="editPageUrl" class="url-display"></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" id="cancelEditTitleBtn">取消</button>
+                <button class="btn btn-primary" id="saveEditTitleBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../shared/utils.js"></script>
     <script src="../shared/storage.js"></script>
     <script src="../shared/content-extractor.js"></script>

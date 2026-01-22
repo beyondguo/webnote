@@ -43,10 +43,13 @@
 
 ## 🚀 快速开始
 
-1. **获取代码**
+### 首次安装
+
+1. **获取代码** (推荐使用 Git，方便后续更新)
    ```bash
-   git clone https://github.com/beyondguo/web-notes-extension.git
+   git clone https://github.com/beyondguo/webnote.git
    ```
+   > 💡 如果没有安装 Git，也可以直接[下载 ZIP](https://github.com/beyondguo/webnote/archive/refs/heads/main.zip) 解压使用
 
 2. **安装扩展**
    - Chrome 打开 `chrome://extensions/`
@@ -56,6 +59,21 @@
 3. **配置 AI (可选)**
    - 点击插件图标 → **⚙️ 设置**
    - 输入 OpenAI / Anthropic / Gemini Key 即可开启 AI 助手功能
+
+### 🔄 一键更新
+
+如果你使用 Git 克隆了仓库，更新只需两步：
+
+**方法一：运行脚本**
+- **Mac/Linux**: 双击 `update.sh` 或终端运行 `./update.sh`
+- **Windows**: 双击 `update.bat`
+
+**方法二：命令行**
+```bash
+git pull
+```
+
+更新后记得在 `chrome://extensions` 页面刷新插件！
 
 ---
 
